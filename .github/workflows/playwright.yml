@@ -23,9 +23,9 @@ jobs:
     - name: Start the API aplication
       run: |
         cd apps/api
-        npm install
-        npm db:init
-        npm start &
+        yarn install
+        yarn db:init
+        yarn dev &
       env:
           PORT: 3333
 
