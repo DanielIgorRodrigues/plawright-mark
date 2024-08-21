@@ -1,0 +1,57 @@
+name: Playwright Tests
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  e2e_tests:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Get code
+      uses: actions/checkout@v4
+
+    - name: Install Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    
+    - name: Start the API aplication
+      run: |
+        cd apps/api
+        npm install
+        npm db:init
+        npm start &
+      env:
+          PORT: 3333
+
+    - name: Setup and Start the Frontend
+      run: |
+        cd apps/web
+        npm install
+        npm start &
+      env:
+        PORT: 8080 
+
+    - name: Wait for API and Frontend to be ready
+      run: npx wait-on http://localhost:3333 http://localhost:8080
+
+    - name: Install dependencies
+      run: npm install
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+
+    - name: Run e2e tests
+      run: npx playwright test
+
+    - name: Publish HTML report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
