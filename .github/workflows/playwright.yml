@@ -37,9 +37,6 @@ jobs:
       env:
         PORT: 8080 
 
-    - name: Wait for API and Frontend to be ready
-      run: npx wait-on http://localhost:3333 http://localhost:8080
-
     - name: Install dependencies
       run: npm install
     - name: Install Playwright Browsers
